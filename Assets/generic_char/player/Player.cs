@@ -10,6 +10,7 @@ public enum State : int
     Fall,
     Landing,
     WallSlide,
+    WallJump
 }
 
 public partial class Player : CharacterBody2D
@@ -34,6 +35,7 @@ public partial class Player : CharacterBody2D
     [Export] public Timer           JumpRequestTimer;
     [Export] public RayCast2D       HandChecker;
     [Export] public RayCast2D       FootChecker;
+    private    readonly     Vector2         _wallJumpVelocity  = new Vector2(1000, -320);
     public override void _UnhandledInput(InputEvent @event)
     {
         using var @input = @event;
@@ -99,8 +101,25 @@ public partial class Player : CharacterBody2D
             case State.WallSlide:
                 AnimationPlayer.Play("wall_sliding");
                 break;
+            case State.WallJump:
+                AnimationPlayer.Play("jump");
+                Velocity = _wallJumpVelocity with
+                {
+                    X = GetWallNormal().X * _wallJumpVelocity.X
+                };
+                JumpRequestTimer.Stop();
+
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(to), to, null);
+        }
+        if (to == State.Jump)
+        {
+            Engine.TimeScale = 0.3;
+        }
+        if (from == State.Jump)
+        {
+            Engine.TimeScale = 1;
         }
         IsFirstTick = true;
     }
@@ -169,11 +188,21 @@ public partial class Player : CharacterBody2D
                 }
                 break;
             case State.WallSlide:
+                if (JumpRequestTimer.TimeLeft > 0)
+                {
+                    return State.WallJump;
+                }
                 if (IsOnFloor())
                 {
                     return State.Idle;
                 }
                 if (!IsOnWall())
+                {
+                    return State.Fall;
+                }
+                break;
+            case State.WallJump:
+                if (Velocity.Y>=0)
                 {
                     return State.Fall;
                 }
@@ -207,6 +236,9 @@ public partial class Player : CharacterBody2D
                 {
                     X = GetWallNormal().X,
                 };
+                break;
+            case State.WallJump:
+                Move(IsFirstTick ? 0 : defaultGravity, delta);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

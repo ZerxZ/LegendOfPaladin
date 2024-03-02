@@ -574,11 +574,11 @@ region_rect = Rect2(0, 0, 336, 56)
 
 [node name="HandChecker" type="RayCast2D" parent="Graphics"]
 position = Vector2(0, -27)
-target_position = Vector2(6, 0)
+target_position = Vector2(7, 0)
 
 [node name="FootChecker" type="RayCast2D" parent="Graphics"]
 position = Vector2(0, -3)
-target_position = Vector2(6, 0)
+target_position = Vector2(7, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-1, -15)
