@@ -12,10 +12,12 @@ public partial class StateMachine : Node
         {
             Player?.TransitionState(_currentState, value);
             _currentState = value;
+            StateTime = 0;
         }
     }
     public Player Player { get; private set; } = null;
     public bool   IsPlayerReady = false;
+    public double StateTime = 0;
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -40,11 +42,14 @@ public partial class StateMachine : Node
             return;
         }
         var nextState = Player.GetNextState(CurrentState);
-        if (CurrentState != nextState)
+        while (nextState != CurrentState)
         {
             CurrentState = nextState;
+            nextState = Player.GetNextState(CurrentState);
         }
+     
         Player.TickPhysics(_currentState, delta);
+        StateTime += delta;
 
     }
 }

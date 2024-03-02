@@ -21,21 +21,24 @@ public partial class Player : CharacterBody2D
         State.Running,
         State.Landing
     };
-    private       float defaultGravity    = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
-    private const float RunSpeed          = 160f;
-    private const float JumpSpeed         = -320f;
-    private const float FloorAcceleration = RunSpeed / 0.2f;
-    private const float AirAcceleration   = RunSpeed / 0.02f;
-    private       float Acceleration => IsOnFloor() ? FloorAcceleration : AirAcceleration;
+    public        string[] StateNames        = Enum.GetNames(typeof(State));
+    private       float    defaultGravity    = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
+    private const float    RunSpeed          = 160f;
+    private const float    JumpSpeed         = -320f;
+    private const float    FloorAcceleration = RunSpeed / 0.2f;
+    private const float    AirAcceleration   = RunSpeed / 0.1f;
+    private       float    Acceleration => IsOnFloor() ? FloorAcceleration : AirAcceleration;
 
-    public          bool            IsFirstTick = false;
-    [Export] public Node2D          Graphics;
-    [Export] public AnimationPlayer AnimationPlayer;
-    [Export] public Timer           CoyoteTimer;
-    [Export] public Timer           JumpRequestTimer;
-    [Export] public RayCast2D       HandChecker;
-    [Export] public RayCast2D       FootChecker;
-    private    readonly     Vector2         _wallJumpVelocity  = new Vector2(1000, -320);
+    public           bool            IsFirstTick = false;
+    [Export] public  Node2D          Graphics;
+    [Export] public  AnimationPlayer AnimationPlayer;
+    [Export] public  Timer           CoyoteTimer;
+    [Export] public  Timer           JumpRequestTimer;
+    [Export] public  RayCast2D       HandChecker;
+    [Export] public  RayCast2D       FootChecker;
+    [Export] public  StateMachine    StateMachine;
+    private readonly Vector2         _wallJumpVelocity = new Vector2(380, -300);
+    public bool CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
     public override void _UnhandledInput(InputEvent @event)
     {
         using var @input = @event;
@@ -59,10 +62,13 @@ public partial class Player : CharacterBody2D
     }
     public void TransitionState(int from, int to)
     {
+
+        GD.Print($"[{Engine.GetPhysicsFrames():0000}] {(from == -1 ? "<Start>":StateNames[from]),-10} => {StateNames[to],10}");
         TransitionState((State)from, (State)to);
     }
     public void TransitionState(State from, State to)
     {
+
         if (!GroundedStates.Contains(from) && GroundedStates.Contains(to))
         {
             CoyoteTimer.Stop();
@@ -113,14 +119,14 @@ public partial class Player : CharacterBody2D
             default:
                 throw new ArgumentOutOfRangeException(nameof(to), to, null);
         }
-        if (to == State.Jump)
-        {
-            Engine.TimeScale = 0.3;
-        }
-        if (from == State.Jump)
-        {
-            Engine.TimeScale = 1;
-        }
+        // if (to == State.Jump)
+        // {
+        //     Engine.TimeScale = 0.3;
+        // }
+        // if (from == State.Jump)
+        // {
+        //     Engine.TimeScale = 1;
+        // }
         IsFirstTick = true;
     }
     public int GetNextState(int currentState)
@@ -172,7 +178,7 @@ public partial class Player : CharacterBody2D
                     // return isStill ? State.Idle : State.Running;
                     return isStill ? State.Landing : State.Running;
                 }
-                if (IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding())
+                if (CanWallSlide)
                 {
                     return State.WallSlide;
                 }
@@ -202,7 +208,11 @@ public partial class Player : CharacterBody2D
                 }
                 break;
             case State.WallJump:
-                if (Velocity.Y>=0)
+                if (CanWallSlide && !IsFirstTick)
+                {
+                    return State.WallSlide;
+                }
+                if (Velocity.Y >= 0)
                 {
                     return State.Fall;
                 }
@@ -228,7 +238,7 @@ public partial class Player : CharacterBody2D
                 Move(IsFirstTick ? 0 : defaultGravity, delta);
                 break;
             case State.Landing:
-                Stand(delta);
+                Stand(defaultGravity, delta);
                 break;
             case State.WallSlide:
                 Move(defaultGravity / 3, delta);
@@ -238,7 +248,19 @@ public partial class Player : CharacterBody2D
                 };
                 break;
             case State.WallJump:
-                Move(IsFirstTick ? 0 : defaultGravity, delta);
+                if (StateMachine.StateTime < 0.1)
+                {
+                    Stand(IsFirstTick ? 0 : defaultGravity, delta);
+                    Graphics.Scale = Graphics.Scale with
+                    {
+                        X = GetWallNormal().X,
+                    };
+                }
+                else
+                {
+                    Move(defaultGravity, delta);
+
+                }
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -246,11 +268,11 @@ public partial class Player : CharacterBody2D
         IsFirstTick = false;
 
     }
-    public void Stand(double delta)
+    public void Stand(float gravity, double delta)
     {
         Velocity = Velocity with
         {
-            Y = Velocity.Y + defaultGravity * (float)delta,
+            Y = Velocity.Y + gravity * (float)delta,
             X =
             (float)Mathf.MoveToward(Velocity.X, 0, Acceleration * delta)
         };

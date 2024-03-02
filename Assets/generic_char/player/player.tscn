@@ -554,7 +554,7 @@ _data = {
 "wall_sliding": SubResource("Animation_fgyn6")
 }
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "CoyoteTimer", "JumpRequestTimer", "HandChecker", "FootChecker")]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "CoyoteTimer", "JumpRequestTimer", "HandChecker", "FootChecker", "StateMachine")]
 script = ExtResource("1_obk4u")
 Graphics = NodePath("Graphics")
 AnimationPlayer = NodePath("AnimationPlayer")
@@ -562,6 +562,7 @@ CoyoteTimer = NodePath("CoyoteTimer")
 JumpRequestTimer = NodePath("JumpRequestTimer")
 HandChecker = NodePath("Graphics/HandChecker")
 FootChecker = NodePath("Graphics/FootChecker")
+StateMachine = NodePath("StateMachine")
 
 [node name="Graphics" type="Node2D" parent="."]
 
@@ -574,11 +575,11 @@ region_rect = Rect2(0, 0, 336, 56)
 
 [node name="HandChecker" type="RayCast2D" parent="Graphics"]
 position = Vector2(0, -27)
-target_position = Vector2(7, 0)
+target_position = Vector2(8, 0)
 
 [node name="FootChecker" type="RayCast2D" parent="Graphics"]
 position = Vector2(0, -3)
-target_position = Vector2(7, 0)
+target_position = Vector2(8, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-1, -15)
