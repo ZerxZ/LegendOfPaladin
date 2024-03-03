@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using 勇者传说;
 
 public enum State : int
 {
@@ -13,7 +14,7 @@ public enum State : int
     WallJump
 }
 
-public partial class Player : CharacterBody2D
+public partial class Player : CharacterBody2D,勇者传说.IStateNode
 {
     public readonly HashSet<State> GroundedStates = new HashSet<State>
     {
