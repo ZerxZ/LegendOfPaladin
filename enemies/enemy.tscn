@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://bt1rypjxovrae"]
+
+[ext_resource type="Script" path="res://enemies/Enemy.cs" id="1_roq77"]
+[ext_resource type="Script" path="res://Assets/generic_char/player/StateMachine.cs" id="2_7220b"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_r12pc"]
+radius = 9.0
+height = 24.0
+
+[node name="Enemy" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "StateMachine")]
+collision_layer = 4
+script = ExtResource("1_roq77")
+Direction = 1
+Graphics = NodePath("Node2D")
+AnimationPlayer = NodePath("AnimationPlayer")
+StateMachine = NodePath("StateMachine")
+
+[node name="Node2D" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Node2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_r12pc")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("2_7220b")

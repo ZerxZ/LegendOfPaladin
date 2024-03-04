@@ -48,7 +48,6 @@ public partial class StateMachine : Node
             CurrentState = nextState;
             nextState = OwnerState.GetNextState(CurrentState);
         }
-     
         OwnerState.TickPhysics(_currentState, delta);
         StateTime += delta;
 

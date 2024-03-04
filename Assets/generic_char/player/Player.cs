@@ -3,19 +3,21 @@ using System;
 using System.Collections.Generic;
 using 勇者传说;
 
-public enum State : int
-{
-    Idle,
-    Running,
-    Jump,
-    Fall,
-    Landing,
-    WallSlide,
-    WallJump
-}
 
 public partial class Player : CharacterBody2D,勇者传说.IStateNode
+
 {
+    public enum State : int
+    {
+        Idle,
+        Running,
+        Jump,
+        Fall,
+        Landing,
+        WallSlide,
+        WallJump
+    }
+
     public readonly HashSet<State> GroundedStates = new HashSet<State>
     {
         State.Idle,
@@ -33,11 +35,11 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
     public           bool            IsFirstTick = false;
     [Export] public  Node2D          Graphics;
     [Export] public  AnimationPlayer AnimationPlayer;
+    [Export] public  StateMachine    StateMachine;
     [Export] public  Timer           CoyoteTimer;
     [Export] public  Timer           JumpRequestTimer;
     [Export] public  RayCast2D       HandChecker;
     [Export] public  RayCast2D       FootChecker;
-    [Export] public  StateMachine    StateMachine;
     private readonly Vector2         _wallJumpVelocity = new Vector2(380, -300);
     public bool CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
     public override void _UnhandledInput(InputEvent @event)
@@ -64,7 +66,7 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
     public void TransitionState(int from, int to)
     {
 
-        GD.Print($"[{Engine.GetPhysicsFrames():0000}] {(from == -1 ? "<Start>":StateNames[from]),-10} => {StateNames[to],10}");
+        // GD.Print($"[{Engine.GetPhysicsFrames():0000}] {(from == -1 ? "<Start>":StateNames[from]),-10} => {StateNames[to],10}");
         TransitionState((State)from, (State)to);
     }
     public void TransitionState(State from, State to)

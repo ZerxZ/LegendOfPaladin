@@ -554,15 +554,16 @@ _data = {
 "wall_sliding": SubResource("Animation_fgyn6")
 }
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "CoyoteTimer", "JumpRequestTimer", "HandChecker", "FootChecker", "StateMachine")]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "StateMachine", "CoyoteTimer", "JumpRequestTimer", "HandChecker", "FootChecker")]
+collision_layer = 2
 script = ExtResource("1_obk4u")
 Graphics = NodePath("Graphics")
 AnimationPlayer = NodePath("AnimationPlayer")
+StateMachine = NodePath("StateMachine")
 CoyoteTimer = NodePath("CoyoteTimer")
 JumpRequestTimer = NodePath("JumpRequestTimer")
 HandChecker = NodePath("Graphics/HandChecker")
 FootChecker = NodePath("Graphics/FootChecker")
-StateMachine = NodePath("StateMachine")
 
 [node name="Graphics" type="Node2D" parent="."]
 
