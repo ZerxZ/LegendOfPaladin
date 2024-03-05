@@ -1,6 +1,7 @@
 using Godot;
-using System;
-using 勇者传说;
+using 勇者传说.classes;
+
+namespace 勇者传说.enemies;
 
 public enum Direction
 {
@@ -22,7 +23,7 @@ public partial class Enemy : CharacterBody2D, IStateNode
             _direction = value;
             if (!IsNodeReady())
             {
-               return;
+                return;
             }
             Graphics.Scale = Graphics.Scale with
             {
@@ -31,9 +32,13 @@ public partial class Enemy : CharacterBody2D, IStateNode
         }
     }
     // Get the gravity from the project settings to be synced with RigidBody nodes.
-    [Export] public Node2D          Graphics;
-    [Export] public AnimationPlayer AnimationPlayer;
-    [Export] public StateMachine    StateMachine;
+    public          classes.Damage       PendingDamage;
+    [Export] public Node2D               Graphics;
+    [Export] public AnimationPlayer      AnimationPlayer;
+    [Export] public classes.StateMachine StateMachine;
+    [Export] public classes.Hitbox       Hitbox;
+    [Export] public classes.Hurtbox      Hurtbox;
+    [Export] public classes.Stats        Stats;
     public virtual int GetNextState(int state)
     {
         return 0;
@@ -53,5 +58,9 @@ public partial class Enemy : CharacterBody2D, IStateNode
             Y = Velocity.Y + Gravity * (float)delta,
         };
         MoveAndSlide();
+    }
+    public void Die()
+    {
+        QueueFree();
     }
 }

@@ -1,17 +1,46 @@
-using Godot;
 using System;
+using Godot;
+using 勇者传说.enemies;
 
-public partial class Boar : Enemy
+namespace 勇者传说.Assets.legacy_fantasy.Boar;
+
+public partial class Boar : enemies.Enemy
 {
+
+
     public enum State : int
     {
         Idle,
         Walk,
         Run,
-        Hit,
+        Hurt,
+        Dying,
     }
 
-    public          string[]  StateNames = Enum.GetNames(typeof(State));
+    public override void _Ready()
+    {
+        Hurtbox.HurtEntered += OnHurtEntered;
+    }
+    private void OnHurtEntered(classes.Hitbox hitbox)
+    {
+        PendingDamage = new classes.Damage
+        {
+            Amount = 1,
+            Source = hitbox,
+        };
+        // Stats.Health -= 1;
+        // GD.Print($"Ouch! {hitbox.Owner.Name} hit me!");
+        // GD.Print($"[Hurt] {Stats.Health} / {Stats.MaxHealth}");
+        //
+        // if (Stats.Health <= 0)
+        // {
+        //     QueueFree();
+        // }
+
+    }
+    public const float    KnockbackAmout = 512;
+    public       string[] StateNames     = Enum.GetNames(typeof(State));
+
     [Export] public RayCast2D WallChecker;
     [Export] public RayCast2D FloorChecker;
     [Export] public RayCast2D PlayerChecker;
@@ -22,14 +51,22 @@ public partial class Boar : Enemy
     }
     public State GetNextState(State state)
     {
-        if (CanSeePlayer)
+        if (Stats.Health <= 0)
         {
-            return State.Run;
+            return state == State.Dying ? (State)classes.StateMachine.KeepCurrentState : State.Dying;
+        }
+        if (PendingDamage is not null)
+        {
+            return State.Hurt;
         }
         switch (state)
         {
 
             case State.Idle:
+                if (CanSeePlayer)
+                {
+                    return State.Run;
+                }
                 if (StateMachine.StateTime > 2)
                 {
                     return State.Walk;
@@ -37,25 +74,34 @@ public partial class Boar : Enemy
 
                 break;
             case State.Walk:
+                if (CanSeePlayer)
+                {
+                    return State.Run;
+                }
                 if (WallChecker.IsColliding() || !FloorChecker.IsColliding())
                 {
                     return State.Idle;
                 }
                 break;
             case State.Run:
-                if (CalmDownTimer.IsStopped())
+                if (!CanSeePlayer && CalmDownTimer.IsStopped())
                 {
                     return State.Walk;
                 }
                 break;
-            case State.Hit:
+
+            case State.Hurt:
+                if (!AnimationPlayer.IsPlaying())
+                {
+                    return State.Run;
+                }
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(state), state, null);
+            case State.Dying:
+                break;
         }
-        return state;
+        return (State)classes.StateMachine.KeepCurrentState;
     }
-    public bool CanSeePlayer=>PlayerChecker.IsColliding() && PlayerChecker.GetCollider() is Player;
+    public bool CanSeePlayer => PlayerChecker.IsColliding() && PlayerChecker.GetCollider() is generic_char.player.Player;
     public override void TransitionState(int from, int to)
     {
 
@@ -85,11 +131,18 @@ public partial class Boar : Enemy
             case State.Run:
                 AnimationPlayer.Play("run");
                 break;
-            case State.Hit:
+            case State.Hurt:
                 AnimationPlayer.Play("hit");
+                Stats.Health -= PendingDamage.Amount;
+
+                var dir = PendingDamage.Source.GlobalPosition.DirectionTo(GlobalPosition);
+                Velocity = dir * KnockbackAmout;
+                Direction = dir.X < 0 ? Direction.Right : Direction.Left;
+                PendingDamage = null;
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(to), to, null);
+            case State.Dying:
+                AnimationPlayer.Play("die");
+                break;
         }
     }
     public override void TickPhysics(int state, double delta)
@@ -103,6 +156,8 @@ public partial class Boar : Enemy
         {
 
             case State.Idle:
+            case State.Hurt:
+            case State.Dying:
                 Move(0, delta);
                 break;
             case State.Walk:
@@ -119,11 +174,7 @@ public partial class Boar : Enemy
                     CalmDownTimer.Start();
                 }
                 break;
-            case State.Hit:
 
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(state), state, null);
         }
     }
 }

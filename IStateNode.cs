@@ -2,7 +2,7 @@
 
 public interface IStateNode
 {
-    int  GetNextState(int state);
-    void TickPhysics(int state, double delta);
-    void TransitionState(int from, int to);
+    int  GetNextState(int    state);
+    void TickPhysics(int     state, double delta);
+    void TransitionState(int from,  int    to);
 }

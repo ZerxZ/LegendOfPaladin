@@ -1,11 +1,11 @@
 using Godot;
-using System;
-using 勇者传说;
 
+namespace 勇者传说.classes;
 
 public partial class StateMachine : Node
 {
-    private int _currentState = -1;
+    public const int KeepCurrentState = -1;
+    private      int _currentState    = -1;
     public int CurrentState
     {
         get => _currentState;
@@ -17,12 +17,12 @@ public partial class StateMachine : Node
         }
     }
     public IStateNode OwnerState { get; private set; } = null;
-    public bool   IsOwnerReady = false;
-    public double StateTime = 0;
+    public bool       IsOwnerReady = false;
+    public double     StateTime    = 0;
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-      
+
         if (Owner is not IStateNode stateNode) return;
         OwnerState = stateNode;
         Owner.Ready += OwnerReady;
@@ -43,7 +43,7 @@ public partial class StateMachine : Node
             return;
         }
         var nextState = OwnerState.GetNextState(CurrentState);
-        while (nextState != CurrentState)
+        while (nextState != KeepCurrentState)
         {
             CurrentState = nextState;
             nextState = OwnerState.GetNextState(CurrentState);

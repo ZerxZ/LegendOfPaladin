@@ -1,22 +1,38 @@
-[gd_scene load_steps=4 format=3 uid="uid://bt1rypjxovrae"]
+[gd_scene load_steps=7 format=3 uid="uid://bt1rypjxovrae"]
 
 [ext_resource type="Script" path="res://enemies/Enemy.cs" id="1_roq77"]
-[ext_resource type="Script" path="res://Assets/generic_char/player/StateMachine.cs" id="2_7220b"]
+[ext_resource type="Script" path="res://classes/Hurtbox.cs" id="2_73qj4"]
+[ext_resource type="Script" path="res://classes/StateMachine.cs" id="2_d55f0"]
+[ext_resource type="Script" path="res://classes/Hitbox.cs" id="3_tur3e"]
+[ext_resource type="Script" path="res://classes/Stats.cs" id="5_mk54t"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_r12pc"]
 radius = 9.0
 height = 24.0
 
-[node name="Enemy" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "StateMachine")]
+[node name="Enemy" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "StateMachine", "Hitbox", "Hurtbox", "Stats")]
 collision_layer = 4
 script = ExtResource("1_roq77")
 Graphics = NodePath("Node2D")
 AnimationPlayer = NodePath("AnimationPlayer")
 StateMachine = NodePath("StateMachine")
+Hitbox = NodePath("Node2D/Hitbox")
+Hurtbox = NodePath("Node2D/Hurtbox")
+Stats = NodePath("Stats")
 
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="Sprite2D" type="Sprite2D" parent="Node2D"]
+
+[node name="Hitbox" type="Area2D" parent="Node2D"]
+collision_layer = 0
+collision_mask = 8
+script = ExtResource("3_tur3e")
+
+[node name="Hurtbox" type="Area2D" parent="Node2D"]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("2_73qj4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_r12pc")
@@ -24,4 +40,7 @@ shape = SubResource("CapsuleShape2D_r12pc")
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
 [node name="StateMachine" type="Node" parent="."]
-script = ExtResource("2_7220b")
+script = ExtResource("2_d55f0")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("5_mk54t")

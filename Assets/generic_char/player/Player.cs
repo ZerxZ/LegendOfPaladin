@@ -1,8 +1,8 @@
-using Godot;
 using System;
 using System.Collections.Generic;
-using 勇者传说;
+using Godot;
 
+namespace 勇者传说.Assets.generic_char.player;
 
 public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
@@ -19,6 +19,8 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
         Attack1,
         Attack2,
         Attack3,
+        Hurt,
+        Dying,
     }
 
     public readonly HashSet<State> GroundedStates = new HashSet<State>
@@ -38,18 +40,35 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
     private const float    AirAcceleration   = RunSpeed / 0.1f;
     private       float    Acceleration => IsOnFloor() ? FloorAcceleration : AirAcceleration;
 
-    public           bool            IsFirstTick      = false;
-    public           bool            IsComboRequested = false;
-    [Export] public  Node2D          Graphics;
-    [Export] public  AnimationPlayer AnimationPlayer;
-    [Export] public  StateMachine    StateMachine;
-    [Export] public  Timer           CoyoteTimer;
-    [Export] public  Timer           JumpRequestTimer;
-    [Export] public  RayCast2D       HandChecker;
-    [Export] public  RayCast2D       FootChecker;
-    [Export] public  bool            CanCombo;
-    private readonly Vector2         _wallJumpVelocity = new Vector2(380, -300);
-    public           bool            CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
+    public           bool                 IsFirstTick      = false;
+    public           bool                 IsComboRequested = false;
+    [Export] public  Node2D               Graphics;
+    [Export] public  AnimationPlayer      AnimationPlayer;
+    [Export] public  classes.StateMachine StateMachine;
+    [Export] public  Timer                CoyoteTimer;
+    [Export] public  Timer                JumpRequestTimer;
+    [Export] public  Timer                InvincibleTimer;
+    [Export] public  RayCast2D            HandChecker;
+    [Export] public  RayCast2D            FootChecker;
+    [Export] public  classes.Stats        Stats;
+    [Export] public  classes.Hitbox       Hitbox;
+    [Export] public  classes.Hurtbox      Hurtbox;
+    [Export] public  bool                 CanCombo;
+    public           classes.Damage       PendingDamage;
+    private readonly Vector2              _wallJumpVelocity = new Vector2(380, -300);
+    public           bool                 CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
+    public override void _Ready()
+    {
+        Hurtbox.HurtEntered += OnHurtEntered;
+    }
+    private void OnHurtEntered(classes.Hitbox hitbox)
+    {
+        PendingDamage = new classes.Damage()
+        {
+            Amount = 1,
+            Source = hitbox
+        };
+    }
     public override void _UnhandledInput(InputEvent @event)
     {
         using var @input = @event;
@@ -143,8 +162,17 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
                 AnimationPlayer.Play("attack_3");
                 IsComboRequested = false;
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(to), to, null);
+            case State.Hurt:
+                AnimationPlayer.Play("hurt");
+                Stats.Health -= PendingDamage.Amount;
+
+                var dir = PendingDamage.Source.GlobalPosition.DirectionTo(GlobalPosition);
+                Velocity = dir * KnockbackAmout;
+                PendingDamage = null;
+                break;
+            case State.Dying:
+                AnimationPlayer.Play("die");
+                break;
         }
         // if (to == State.Jump)
         // {
@@ -156,12 +184,21 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
         // }
         IsFirstTick = true;
     }
+    public const float KnockbackAmout = 512;
     public int GetNextState(int currentState)
     {
         return (int)GetNextState((State)currentState);
     }
     public State GetNextState(State state)
     {
+        if (Stats.Health <= 0)
+        {
+            return state == State.Dying ? (State)classes.StateMachine.KeepCurrentState : State.Dying;
+        }
+        if (PendingDamage is not null)
+        {
+            return State.Hurt;
+        }
         var canJump    = CoyoteTimer.TimeLeft > 0 || IsOnFloor();
         var shouldJump = canJump && JumpRequestTimer.TimeLeft > 0;
         if (shouldJump)
@@ -266,10 +303,18 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
                     return State.Idle;
                 }
                 break;
+            case State.Hurt:
+                if (!AnimationPlayer.IsPlaying())
+                {
+                    return State.Idle;
+                }
+                break;
+            case State.Dying:
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(state), state, null);
         }
-        return state;
+        return (State)classes.StateMachine.KeepCurrentState;
     }
 
     public void TickPhysics(int state, double delta)
@@ -314,10 +359,10 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
             case State.Attack1:
             case State.Attack2:
             case State.Attack3:
-                Stand(defaultGravity,delta);
+            case State.Dying:
+            case State.Hurt:
+                Stand(defaultGravity, delta);
                 break;
-            default:
-                throw new ArgumentOutOfRangeException();
         }
         IsFirstTick = false;
 
@@ -331,6 +376,10 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
             (float)Mathf.MoveToward(Velocity.X, 0, Acceleration * delta)
         };
         MoveAndSlide();
+    }
+    public void Die()
+    {
+        GetTree().ReloadCurrentScene();
     }
     public void Move(float gravity, double delta)
     {
