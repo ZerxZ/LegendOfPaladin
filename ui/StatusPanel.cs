@@ -7,16 +7,31 @@ public partial class StatusPanel : HBoxContainer
 {
     [Export] public TextureProgressBar HealthBar;
     [Export] public TextureProgressBar EasedHealthBar;
+    [Export] public TextureProgressBar EnergyBar;
+    [Export] public TextureProgressBar EasedEnergyBar;
     [Export] public Stats              Stats;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
         Stats.HealthChanged += OnHealthChanged;
+        Stats.EnergyChanged += OnEnergyChanged;
+        UpdateEnergy();
+        UpdateHealth();
     }
-    private void OnHealthChanged(int health)
+    private void OnEnergyChanged()
+    {
+        UpdateEnergy();
+    }
+    private void OnHealthChanged()
     {
         UpdateHealth();
+    }
+    public void UpdateEnergy()
+    {
+        var percent = Stats.Energy / Stats.MaxEnergy;
+        CreateTween().TweenProperty(EasedEnergyBar, Range.PropertyName.Value.ToString(), percent, 0.3f);
+        EnergyBar.Value = percent;
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.

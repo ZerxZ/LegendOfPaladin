@@ -6,3 +6,4 @@
 ## 素材来源
 - [Generic Character Asset v 0.2](https://brullov.itch.io/generic-char-asset)  -  [brullov](https://brullov.itch.io/)
 - [Legacy-Fantasy - High Forest 2.0](https://anokolisa.itch.io/sidescroller-pixelart-sprites-asset-pack-forest-16x16)  -  [anokolisa](https://anokolisa.itch.io/)
+- [Gamepad UI / Controller Prompts Pack](https://greatdocbrown.itch.io/gamepad-ui)  -  [greatdocbrown](https://greatdocbrown.itch.io/)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cntjedde7j8d2"]
+[gd_scene load_steps=11 format=3 uid="uid://cntjedde7j8d2"]
 
 [ext_resource type="Texture2D" uid="uid://l6mko1sbclyn" path="res://Assets/legacy_fantasy/Trees/Tree-Assets.png" id="1_fhgep"]
 [ext_resource type="Script" path="res://World.cs" id="1_ygo78"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://bxk2e8hd1anip" path="res://Assets/legacy_fantasy/Background/Background.png" id="4_dqfae"]
 [ext_resource type="Texture2D" uid="uid://dcqr2xulscgp8" path="res://Assets/legacy_fantasy/Trees/Background.png" id="5_1kbvt"]
 [ext_resource type="PackedScene" uid="uid://j1le7e3qbgin" path="res://Assets/legacy_fantasy/Boar/boar.tscn" id="6_dqaer"]
+[ext_resource type="Script" path="res://classes/Interactable.cs" id="7_o42xj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_73nqr"]
 texture = ExtResource("1_fhgep")
@@ -1120,6 +1121,9 @@ terrain_set_0/terrain_1/name = "Leaves"
 terrain_set_0/terrain_1/color = Color(0.5, 0.4375, 0.25, 1)
 sources/0 = SubResource("TileSetAtlasSource_73nqr")
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gbbec"]
+size = Vector2(23, 32)
+
 [node name="World" type="Node2D"]
 script = ExtResource("1_ygo78")
 
@@ -1274,5 +1278,21 @@ position = Vector2(587, -48)
 
 [node name="Boar3" parent="." instance=ExtResource("6_dqaer")]
 position = Vector2(341, 195)
+
+[node name="A" type="Area2D" parent="."]
+position = Vector2(113, -84)
+script = ExtResource("7_o42xj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="A"]
+position = Vector2(38, 30)
+shape = SubResource("RectangleShape2D_gbbec")
+
+[node name="A2" type="Area2D" parent="."]
+position = Vector2(113, -84)
+script = ExtResource("7_o42xj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="A2"]
+position = Vector2(56, 30)
+shape = SubResource("RectangleShape2D_gbbec")
 
 [editable path="Boar"]
