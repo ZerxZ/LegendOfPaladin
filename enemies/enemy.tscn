@@ -10,7 +10,6 @@ height = 24.0
 [node name="Enemy" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "StateMachine")]
 collision_layer = 4
 script = ExtResource("1_roq77")
-Direction = 1
 Graphics = NodePath("Node2D")
 AnimationPlayer = NodePath("AnimationPlayer")
 StateMachine = NodePath("StateMachine")

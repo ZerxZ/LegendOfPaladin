@@ -1278,18 +1278,14 @@ region_rect = Rect2(210, 101, 124, 86)
 [node name="Boar" parent="." instance=ExtResource("6_dqaer")]
 position = Vector2(136, 161)
 
+[node name="Boar4" parent="." instance=ExtResource("6_dqaer")]
+position = Vector2(136, 161)
+
 [node name="Boar2" parent="." instance=ExtResource("6_dqaer")]
 position = Vector2(240, 136)
 
 [node name="Boar3" parent="." instance=ExtResource("6_dqaer")]
 position = Vector2(341, 195)
 
-[node name="Boar4" parent="." node_paths=PackedStringArray("WallChecker", "FloorChecker", "PlayerChecker", "CalmDownTimer", "Graphics", "AnimationPlayer", "StateMachine") instance=ExtResource("6_dqaer")]
-position = Vector2(341, 195)
-WallChecker = NodePath("../Boar3/Node2D/WallChecker")
-FloorChecker = NodePath("../Boar3/Node2D/FloorChecker")
-PlayerChecker = NodePath("../Boar3/Node2D/PlayerChecker")
-CalmDownTimer = NodePath("../Boar3/CalmDownTimer")
-Graphics = NodePath("../Boar3/Node2D")
-AnimationPlayer = NodePath("../Boar3/AnimationPlayer")
-StateMachine = NodePath("../Boar3/StateMachine")
+[editable path="Boar"]
+[editable path="Boar4"]

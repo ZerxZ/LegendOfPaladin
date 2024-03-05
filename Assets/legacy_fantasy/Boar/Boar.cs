@@ -22,7 +22,7 @@ public partial class Boar : Enemy
     }
     public State GetNextState(State state)
     {
-        if (PlayerChecker.IsColliding())
+        if (CanSeePlayer)
         {
             return State.Run;
         }
@@ -55,10 +55,11 @@ public partial class Boar : Enemy
         }
         return state;
     }
+    public bool CanSeePlayer=>PlayerChecker.IsColliding() && PlayerChecker.GetCollider() is Player;
     public override void TransitionState(int from, int to)
     {
 
-       // GD.Print($"[{Engine.GetPhysicsFrames():0000}] {(from == -1 ? "<Start>" : StateNames[from]),-10} => {StateNames[to],10}");
+        // GD.Print($"[{Engine.GetPhysicsFrames():0000}] {(from == -1 ? "<Start>" : StateNames[from]),-10} => {StateNames[to],10}");
         TransitionState((State)from, (State)to);
     }
     public void TransitionState(State from, State to)
@@ -78,6 +79,7 @@ public partial class Boar : Enemy
                 if (!FloorChecker.IsColliding())
                 {
                     Direction = Direction == Direction.Left ? Direction.Right : Direction.Left;
+                    FloorChecker.ForceRaycastUpdate();
                 }
                 break;
             case State.Run:
@@ -112,7 +114,7 @@ public partial class Boar : Enemy
                     Direction = Direction == Direction.Left ? Direction.Right : Direction.Left;
                 }
                 Move(MaxSpeed, delta);
-                if (PlayerChecker.IsColliding())
+                if (CanSeePlayer)
                 {
                     CalmDownTimer.Start();
                 }

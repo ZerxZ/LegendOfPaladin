@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using 勇者传说;
 
 
-public partial class Player : CharacterBody2D,勇者传说.IStateNode
+public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
 {
     public enum State : int
@@ -15,14 +15,20 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
         Fall,
         Landing,
         WallSlide,
-        WallJump
+        WallJump,
+        Attack1,
+        Attack2,
+        Attack3,
     }
 
     public readonly HashSet<State> GroundedStates = new HashSet<State>
     {
         State.Idle,
         State.Running,
-        State.Landing
+        State.Landing,
+        State.Attack1,
+        State.Attack2,
+        State.Attack3,
     };
     public        string[] StateNames        = Enum.GetNames(typeof(State));
     private       float    defaultGravity    = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
@@ -32,7 +38,8 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
     private const float    AirAcceleration   = RunSpeed / 0.1f;
     private       float    Acceleration => IsOnFloor() ? FloorAcceleration : AirAcceleration;
 
-    public           bool            IsFirstTick = false;
+    public           bool            IsFirstTick      = false;
+    public           bool            IsComboRequested = false;
     [Export] public  Node2D          Graphics;
     [Export] public  AnimationPlayer AnimationPlayer;
     [Export] public  StateMachine    StateMachine;
@@ -40,8 +47,9 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
     [Export] public  Timer           JumpRequestTimer;
     [Export] public  RayCast2D       HandChecker;
     [Export] public  RayCast2D       FootChecker;
+    [Export] public  bool            CanCombo;
     private readonly Vector2         _wallJumpVelocity = new Vector2(380, -300);
-    public bool CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
+    public           bool            CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
     public override void _UnhandledInput(InputEvent @event)
     {
         using var @input = @event;
@@ -49,7 +57,7 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
         {
             JumpRequestTimer.Start();
         }
-        if (@event.IsActionReleased("jump"))
+        if (@input.IsActionReleased("jump"))
         {
             JumpRequestTimer.Stop();
 
@@ -61,6 +69,10 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
                     Y = JumpSpeed / 2
                 }
                 : Velocity;
+        }
+        if (@input.IsActionPressed("attack") && CanCombo)
+        {
+            IsComboRequested = true;
         }
     }
     public void TransitionState(int from, int to)
@@ -119,6 +131,18 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
                 JumpRequestTimer.Stop();
 
                 break;
+            case State.Attack1:
+                AnimationPlayer.Play("attack_1");
+                IsComboRequested = false;
+                break;
+            case State.Attack2:
+                AnimationPlayer.Play("attack_2");
+                IsComboRequested = false;
+                break;
+            case State.Attack3:
+                AnimationPlayer.Play("attack_3");
+                IsComboRequested = false;
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(to), to, null);
         }
@@ -144,15 +168,19 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
         {
             return State.Jump;
         }
+        if (GroundedStates.Contains(state) && !IsOnFloor())
+        {
+            return State.Fall;
+        }
         var direction = Input.GetAxis("move_left", "move_right");
         var isStill   = direction == 0 && Velocity.X == 0;
 
         switch (state)
         {
             case State.Idle:
-                if (!IsOnFloor())
+                if (Input.IsActionJustPressed("attack"))
                 {
-                    return State.Fall;
+                    return State.Attack1;
                 }
                 if (!isStill)
                 {
@@ -160,9 +188,9 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
                 }
                 break;
             case State.Running:
-                if (!IsOnFloor())
+                if (Input.IsActionJustPressed("attack"))
                 {
-                    return State.Fall;
+                    return State.Attack1;
                 }
                 if (isStill)
                 {
@@ -220,6 +248,24 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
                     return State.Fall;
                 }
                 break;
+            case State.Attack1:
+                if (!AnimationPlayer.IsPlaying())
+                {
+                    return IsComboRequested ? State.Attack2 : State.Idle;
+                }
+                break;
+            case State.Attack2:
+                if (!AnimationPlayer.IsPlaying())
+                {
+                    return IsComboRequested ? State.Attack3 : State.Idle;
+                }
+                break;
+            case State.Attack3:
+                if (!AnimationPlayer.IsPlaying())
+                {
+                    return State.Idle;
+                }
+                break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(state), state, null);
         }
@@ -264,6 +310,11 @@ public partial class Player : CharacterBody2D,勇者传说.IStateNode
                     Move(defaultGravity, delta);
 
                 }
+                break;
+            case State.Attack1:
+            case State.Attack2:
+            case State.Attack3:
+                Stand(defaultGravity,delta);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
