@@ -63,6 +63,10 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
     }
     private void OnHurtEntered(classes.Hitbox hitbox)
     {
+        if (InvincibleTimer.TimeLeft > 0)
+        {
+            return;
+        }
         PendingDamage = new classes.Damage()
         {
             Amount = 1,
@@ -168,10 +172,12 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
                 var dir = PendingDamage.Source.GlobalPosition.DirectionTo(GlobalPosition);
                 Velocity = dir * KnockbackAmout;
+                InvincibleTimer.Start();
                 PendingDamage = null;
                 break;
             case State.Dying:
                 AnimationPlayer.Play("die");
+                InvincibleTimer.Stop();
                 break;
         }
         // if (to == State.Jump)
@@ -319,6 +325,22 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
     public void TickPhysics(int state, double delta)
     {
+        if (InvincibleTimer.TimeLeft > 0)
+        {
+            Graphics.Modulate = Graphics.Modulate with
+            {
+                // ReSharper disable once PossibleLossOfFraction
+                A = Mathf.Sin(Time.GetTicksMsec()/ 30) * 0.5f + 0.5f
+            };
+        }
+        else
+        {
+            Graphics.Modulate = Graphics.Modulate with
+            {
+                A = 1
+            };
+        }
+        
         var currentState = (State)state;
         switch (currentState)
         {

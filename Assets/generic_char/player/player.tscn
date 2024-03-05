@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://bcydvn4wpp7de"]
+[gd_scene load_steps=27 format=3 uid="uid://bcydvn4wpp7de"]
 
 [ext_resource type="Texture2D" uid="uid://dfl0d15rgs7cs" path="res://Assets/generic_char/player/char_blue_1.png" id="1_nf43b"]
 [ext_resource type="Script" path="res://Assets/generic_char/player/Player.cs" id="1_obk4u"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://classes/StateMachine.cs" id="3_5onl5"]
 [ext_resource type="Script" path="res://classes/Hitbox.cs" id="3_cejph"]
 [ext_resource type="Script" path="res://classes/Stats.cs" id="7_jyfmd"]
+[ext_resource type="PackedScene" uid="uid://cc7e1w4110v8b" path="res://ui/status_panel.tscn" id="8_l17g4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_a004j"]
 size = Vector2(14, 31)
@@ -1834,7 +1835,7 @@ _data = {
 "wall_sliding": SubResource("Animation_fgyn6")
 }
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "StateMachine", "CoyoteTimer", "JumpRequestTimer", "HandChecker", "FootChecker", "Stats", "Hitbox", "Hurtbox")]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("Graphics", "AnimationPlayer", "StateMachine", "CoyoteTimer", "JumpRequestTimer", "InvincibleTimer", "HandChecker", "FootChecker", "Stats", "Hitbox", "Hurtbox")]
 collision_layer = 2
 script = ExtResource("1_obk4u")
 Graphics = NodePath("Graphics")
@@ -1842,6 +1843,7 @@ AnimationPlayer = NodePath("AnimationPlayer")
 StateMachine = NodePath("StateMachine")
 CoyoteTimer = NodePath("CoyoteTimer")
 JumpRequestTimer = NodePath("JumpRequestTimer")
+InvincibleTimer = NodePath("InvincibleTimer")
 HandChecker = NodePath("Graphics/HandChecker")
 FootChecker = NodePath("Graphics/FootChecker")
 Stats = NodePath("Stats")
@@ -1920,3 +1922,12 @@ script = ExtResource("7_jyfmd")
 [node name="InvincibleTimer" type="Timer" parent="."]
 wait_time = 2.0
 one_shot = true
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="StatusPanel" parent="CanvasLayer" node_paths=PackedStringArray("Stats") instance=ExtResource("8_l17g4")]
+offset_left = 8.0
+offset_top = 7.0
+offset_right = 96.0
+offset_bottom = 33.0
+Stats = NodePath("../../Stats")

@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://j1le7e3qbgin"]
+[gd_scene load_steps=16 format=3 uid="uid://j1le7e3qbgin"]
 
 [ext_resource type="PackedScene" uid="uid://bt1rypjxovrae" path="res://enemies/enemy.tscn" id="1_meuya"]
 [ext_resource type="Texture2D" uid="uid://c8ggsnpj30hol" path="res://Assets/legacy_fantasy/Boar/Idle-Sheet.png" id="2_ps16q"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://2gkomh8m7h2a" path="res://Assets/legacy_fantasy/Boar/Hit-Sheet.png" id="3_w54ha"]
 [ext_resource type="Texture2D" uid="uid://birxvw57vhxsd" path="res://Assets/legacy_fantasy/Boar/Run-Sheet.png" id="4_5dets"]
 [ext_resource type="Texture2D" uid="uid://cr0wa7xj3cx0l" path="res://Assets/legacy_fantasy/Boar/Walk-Base-Sheet.png" id="5_iksp3"]
+[ext_resource type="PackedScene" uid="uid://cc7e1w4110v8b" path="res://ui/status_panel.tscn" id="7_be4p0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_j8um3"]
 size = Vector2(23, 21)
@@ -809,5 +810,12 @@ one_shot = true
 
 [node name="Stats" parent="." index="5"]
 MaxHealth = 5
+
+[node name="StatusPanel" parent="." index="6" node_paths=PackedStringArray("Stats") instance=ExtResource("7_be4p0")]
+offset_left = -55.0
+offset_top = -49.0
+offset_right = 33.0
+offset_bottom = -23.0
+Stats = NodePath("../Stats")
 
 [connection signal="HurtEntered" from="Node2D/Hurtbox" to="." method="_on_hurtbox_hurt_entered"]
