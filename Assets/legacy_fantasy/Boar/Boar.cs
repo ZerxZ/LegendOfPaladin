@@ -20,6 +20,7 @@ public partial class Boar : enemies.Enemy
     public override void _Ready()
     {
         Hurtbox.HurtEntered += OnHurtEntered;
+        Direction = Direction;
     }
     private void OnHurtEntered(classes.Hitbox hitbox)
     {

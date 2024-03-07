@@ -4,10 +4,16 @@ using System.Linq;
 using Godot;
 
 namespace 勇者传说.Assets.generic_char.player;
-
+public enum Direction : int
+{
+    Left  = -1,
+    Right = 1,
+}
 public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
 {
+ 
+
     public enum State : int
     {
         Idle,
@@ -50,21 +56,40 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
     private       float  Acceleration => IsOnFloor() ? FloorAcceleration : AirAcceleration;
     public        float  FallFromY = 0;
 
-    public           bool                 IsFirstTick      = false;
-    public           bool                 IsComboRequested = false;
-    [Export] public  Node2D               Graphics;
-    [Export] public  AnimationPlayer      AnimationPlayer;
-    [Export] public  classes.StateMachine StateMachine;
-    [Export] public  Timer                CoyoteTimer;
-    [Export] public  Timer                JumpRequestTimer;
-    [Export] public  Timer                InvincibleTimer;
-    [Export] public  Timer                SlideRequestTimer;
-    [Export] public  RayCast2D            HandChecker;
-    [Export] public  RayCast2D            FootChecker;
-    [Export] public  classes.Stats        Stats;
-    [Export] public  classes.Hitbox       Hitbox;
-    [Export] public  classes.Hurtbox      Hurtbox;
-    [Export] public  AnimatedSprite2D     InteractIcon;
+    public          bool                 IsFirstTick      = false;
+    public          bool                 IsComboRequested = false;
+    [Export] public Node2D               Graphics;
+    [Export] public AnimationPlayer      AnimationPlayer;
+    [Export] public classes.StateMachine StateMachine;
+    [Export] public Timer                CoyoteTimer;
+    [Export] public Timer                JumpRequestTimer;
+    [Export] public Timer                InvincibleTimer;
+    [Export] public Timer                SlideRequestTimer;
+    [Export] public RayCast2D            HandChecker;
+    [Export] public RayCast2D            FootChecker;
+    [Export] public classes.Stats        Stats;
+    [Export] public classes.Hitbox       Hitbox;
+    [Export] public classes.Hurtbox      Hurtbox;
+    [Export] public AnimatedSprite2D     InteractIcon;
+    [Export] public StatusPanel          StatusPanel;
+    private         Direction            _direction = Direction.Left;
+    [Export] public Direction Direction
+    {
+        get => _direction;
+        set
+        {
+            _direction = value;
+            if (!IsNodeReady())
+            {
+                
+                return;
+            }
+            Graphics.Scale = Graphics.Scale with
+            {
+                X = (int)_direction
+            };
+        }
+    }
     [Export] public  bool                 CanCombo;
     public           classes.Damage       PendingDamage;
     public           List<Interactable>   InteractableWith  = new List<Interactable>();
@@ -76,10 +101,12 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
         if (Stats.Energy < SlidingEnergyCost) return false;
         return !FootChecker.IsColliding();
     }
+   
 
     public override void _Ready()
     {
         Hurtbox.HurtEntered += OnHurtEntered;
+        Direction = Direction;
     }
     public void RegisterInteractable(Interactable interactable)
     {
@@ -236,8 +263,6 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
             case State.SlidingEnd:
                 AnimationPlayer.Play("sliding_end");
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(to), to, null);
         }
         // if (to == State.Jump)
         // {
@@ -399,8 +424,6 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
                     return State.Idle;
                 }
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(state), state, null);
         }
         return (State)classes.StateMachine.KeepCurrentState;
     }
@@ -408,7 +431,7 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
     public void TickPhysics(int state, double delta)
     {
-        InteractIcon.Visible = InteractableWith is {Count: > 0};
+        InteractIcon.Visible = InteractableWith is { Count: > 0 };
         if (InvincibleTimer.TimeLeft > 0)
         {
             Graphics.Modulate = Graphics.Modulate with
@@ -442,19 +465,13 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
                 break;
             case State.WallSlide:
                 Move(_defaultGravity / 3, delta);
-                Graphics.Scale = Graphics.Scale with
-                {
-                    X = GetWallNormal().X,
-                };
+                Direction = GetWallNormal().X > 0 ? Direction.Right : Direction.Left;
                 break;
             case State.WallJump:
                 if (StateMachine.StateTime < 0.1)
                 {
                     Stand(IsFirstTick ? 0 : _defaultGravity, delta);
-                    Graphics.Scale = Graphics.Scale with
-                    {
-                        X = GetWallNormal().X,
-                    };
+                    Direction = GetWallNormal().X > 0 ? Direction.Right : Direction.Left;
                 }
                 else
                 {
@@ -478,8 +495,6 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
             case State.SlidingEnd:
                 Stand(_defaultGravity, delta);
                 break;
-            default:
-                throw new ArgumentOutOfRangeException();
         }
         IsFirstTick = false;
 
@@ -510,20 +525,17 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
     }
     public void Move(float gravity, double delta)
     {
-        var direction = Input.GetAxis("move_left", "move_right");
+        var movement = Input.GetAxis("move_left", "move_right");
         Velocity = Velocity with
         {
             Y = Velocity.Y + gravity * (float)delta,
             X =
-            (float)Mathf.MoveToward(Velocity.X, direction * RunSpeed, Acceleration * delta)
+            (float)Mathf.MoveToward(Velocity.X, movement * RunSpeed, Acceleration * delta)
         };
 
-        if (direction != 0)
+        if (movement != 0)
         {
-            Graphics.Scale = Graphics.Scale with
-            {
-                X = direction < 0 ? -1 : 1,
-            };
+            Direction = movement > 0 ? Direction.Right : Direction.Left;
         }
 
         MoveAndSlide();

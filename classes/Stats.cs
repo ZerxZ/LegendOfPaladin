@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace 勇者传说.classes;
@@ -15,6 +16,8 @@ public partial class Stats : Node
     [Export] public double EnergyRegen = 0.8;
     private         int    _health;
     private         double _energy;
+    public List<HealthChangedEventHandler> HealthChangedList = new List<HealthChangedEventHandler>();
+    public List<EnergyChangedEventHandler> EnergyChangedList = new List<EnergyChangedEventHandler>();
     [Export] public int Health
     {
         get => _health;
@@ -47,6 +50,34 @@ public partial class Stats : Node
     {
         Health = MaxHealth;
         Energy = MaxEnergy;
-
+    }
+    public void RegisterHealthChanged(HealthChangedEventHandler handler)
+    {
+        if (!HealthChangedList.Contains(handler))
+        {
+            HealthChangedList.Add(handler);
+        }
+       
+        HealthChanged += handler;
+    }
+    public void RegisterEnergyChanged(EnergyChangedEventHandler handler)
+    {
+        if (!EnergyChangedList.Contains(handler))
+        {
+            EnergyChangedList.Add(handler);
+        }
+        EnergyChanged += handler;
+    }
+    public void Clear()
+    {
+        GD.Print("Clearing Stats...");
+        foreach (var healthChangedEventHandler in HealthChangedList)
+        {
+            HealthChanged -= healthChangedEventHandler;
+        }
+        foreach (var energyChangedEventHandler in EnergyChangedList)
+        {
+            EnergyChanged -= energyChangedEventHandler;
+        }
     }
 }

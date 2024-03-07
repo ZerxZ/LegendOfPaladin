@@ -23,7 +23,7 @@ public partial class Interactable : Area2D
 		if (body is not Player player) return;
 		player.UnregisterInteractable(this);
 	}
-	public void Interact()
+	public virtual void Interact()
 	{
 		GD.Print($"[Interact] {Name}");
 		EmitSignal(SignalName.Interacted);

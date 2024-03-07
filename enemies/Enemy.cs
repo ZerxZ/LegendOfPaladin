@@ -11,10 +11,10 @@ public enum Direction
 
 public partial class Enemy : CharacterBody2D, IStateNode
 {
-    private         Direction _direction   = Direction.Left;
     public          float     Gravity      = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
     [Export] public float     MaxSpeed     = 180.0f;
     [Export] public float     Acceleration = 2000.0f;
+    private         Direction _direction   = Direction.Left;
     [Export] public Direction Direction
     {
         get => _direction;
@@ -30,6 +30,10 @@ public partial class Enemy : CharacterBody2D, IStateNode
                 X = -((int)_direction)
             };
         }
+    }
+    private void OnReady()
+    {
+        Direction = Direction;
     }
     // Get the gravity from the project settings to be synced with RigidBody nodes.
     public          classes.Damage       PendingDamage;

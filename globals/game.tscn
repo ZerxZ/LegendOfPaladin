@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://svx1ucarxm2d"]
+
+[ext_resource type="Script" path="res://globals/Game.cs" id="1_jto1h"]
+[ext_resource type="Script" path="res://classes/Stats.cs" id="2_hdafa"]
+
+[node name="Game" type="Node" node_paths=PackedStringArray("PlayerStats")]
+script = ExtResource("1_jto1h")
+PlayerStats = NodePath("Stats")
+
+[node name="Stats" type="Node" parent="."]
+script = ExtResource("2_hdafa")

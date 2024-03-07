@@ -10,38 +10,69 @@ public partial class StatusPanel : HBoxContainer
     [Export] public TextureProgressBar EnergyBar;
     [Export] public TextureProgressBar EasedEnergyBar;
     [Export] public Stats              Stats;
+    [Export] public Tween              EnergyTween;
+    [Export] public Tween              HealthTween;
 
     // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
+    public override async void _Ready()
     {
-        Stats.HealthChanged += OnHealthChanged;
-        Stats.EnergyChanged += OnEnergyChanged;
-        UpdateEnergy();
-        UpdateHealth();
+        if (Stats is null)
+        {
+            return;
+        }
+        Stats.RegisterHealthChanged(OnHealthChanged);
+        Stats.RegisterEnergyChanged(OnEnergyChanged);
+
+        UpdateHealth(true);
+        UpdateEnergy(true);
     }
     private void OnEnergyChanged()
     {
+
         UpdateEnergy();
     }
     private void OnHealthChanged()
     {
+
         UpdateHealth();
     }
-    public void UpdateEnergy()
+    public void UpdateEnergy(bool skip = false)
     {
+        if (Stats is null)
+        {
+            return;
+        }
         var percent = Stats.Energy / Stats.MaxEnergy;
-        CreateTween().TweenProperty(EasedEnergyBar, Range.PropertyName.Value.ToString(), percent, 0.3f);
+        if (!skip)
+        {
+
+            EnergyTween = CreateTween();
+            EnergyTween.TweenProperty(EasedEnergyBar, Range.PropertyName.Value.ToString(), percent, 0.3f);
+        }
+        else
+        {
+            EasedEnergyBar.Value = percent;
+        }
         EnergyBar.Value = percent;
     }
 
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
+    public void UpdateHealth(bool skip = false)
     {
-    }
-    public void UpdateHealth()
-    {
+        if (Stats is null)
+        {
+            return;
+        }
         var percent = (float)Stats.Health / Stats.MaxHealth;
-        CreateTween().TweenProperty(EasedHealthBar, Range.PropertyName.Value.ToString(),percent,0.3f);
+        if (!skip)
+        {
+           
+            HealthTween = CreateTween();
+            HealthTween.TweenProperty(EasedHealthBar, Range.PropertyName.Value.ToString(), percent, 0.3f);
+        }
+        else
+        {
+            EasedHealthBar.Value = percent;
+        }
         HealthBar.Value = percent;
     }
 }
