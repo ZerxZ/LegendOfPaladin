@@ -149,9 +149,6 @@ public partial class Game : Node
             { "player", player },
         };
 
-        var position = new Dictionary<string, Variant>();
-
-        data.Add("player", player);
         var       json = Json.Stringify(data);
         using var file = Godot.FileAccess.Open(SavePath, Godot.FileAccess.ModeFlags.Write);
         if (file is null)
