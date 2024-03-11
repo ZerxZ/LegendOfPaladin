@@ -71,7 +71,7 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
     [Export] public classes.Hitbox       Hitbox;
     [Export] public classes.Hurtbox      Hurtbox;
     [Export] public AnimatedSprite2D     InteractIcon;
-    [Export] public StatusPanel          StatusPanel;
+    [Export] public ui.StatusPanel       StatusPanel;
     private         Direction            _direction = Direction.Left;
     [Export] public Direction Direction
     {
@@ -90,11 +90,11 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
             };
         }
     }
-    [Export] public  bool                 CanCombo;
-    public           classes.Damage       PendingDamage;
-    public           List<Interactable>   InteractableWith  = new List<Interactable>();
-    private readonly Vector2              _wallJumpVelocity = new Vector2(380, -300);
-    public           bool                 CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
+    [Export] public  bool                       CanCombo;
+    public           classes.Damage             PendingDamage;
+    public           List<classes.Interactable> InteractableWith  = new List<classes.Interactable>();
+    private readonly Vector2                    _wallJumpVelocity = new Vector2(380, -300);
+    public           bool                       CanWallSlide => IsOnWall() && HandChecker.IsColliding() && FootChecker.IsColliding();
     public bool ShouldSlide()
     {
         if (SlideRequestTimer.IsStopped()) return false;
@@ -105,10 +105,11 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
     public override void _Ready()
     {
+        Stand(_defaultGravity,0.01);
         Hurtbox.HurtEntered += OnHurtEntered;
         Direction = Direction;
     }
-    public void RegisterInteractable(Interactable interactable)
+    public void RegisterInteractable(classes.Interactable interactable)
     {
         if (StateMachine.CurrentState == (int)State.Dying)
         {
@@ -120,7 +121,7 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
         }
         InteractableWith.Add(interactable);
     }
-    public void UnregisterInteractable(Interactable interactable)
+    public void UnregisterInteractable(classes.Interactable interactable)
     {
         InteractableWith.Remove(interactable);
     }

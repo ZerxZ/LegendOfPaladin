@@ -1,7 +1,9 @@
 using Godot;
-using System;
 using 勇者传说.Assets.generic_char.player;
 
+namespace 勇者传说.classes;
+
+[GlobalClass]
 public partial class EntryPoint : Marker2D
 {
     [Export] public Direction Direction { get; set; } = Direction.Right;

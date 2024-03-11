@@ -1,5 +1,6 @@
 using Godot;
-using System;
+
+namespace 勇者传说.classes;
 
 [GlobalClass]
 public partial class Teleporter : Interactable
@@ -14,7 +15,10 @@ public partial class Teleporter : Interactable
             GD.PrintErr("[Teleport] Scene is null!");
             return;
         }
-        Game.Instance.ChangeScene(ScenePath, Target);
+        globals.Game.Instance.ChangeScene(ScenePath, new Godot.Collections.Dictionary
+        {
+            { "entry_point", Target }
+        });
 
     }
 }

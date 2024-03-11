@@ -1,6 +1,8 @@
 using Godot;
-using System;
 using 勇者传说.Assets.generic_char.player;
+
+namespace 勇者传说.classes;
+
 [GlobalClass]
 public partial class Interactable : Area2D
 {
@@ -9,7 +11,7 @@ public partial class Interactable : Area2D
 	{
 		CollisionLayer = 0;
 		CollisionMask = 0;
-		SetCollisionMaskValue(2,true);
+		SetCollisionMaskValue(2, true);
 		BodyEntered += OnBodyEntered;
 		BodyExited += OnBodyExited;
 	}
@@ -26,7 +28,7 @@ public partial class Interactable : Area2D
 	public virtual void Interact()
 	{
 		GD.Print($"[Interact] {Name}");
-		EmitSignal(SignalName.Interacted);
+		EmitSignal(Interactable.SignalName.Interacted);
 	}
 
 	// Called when the node enters the scene tree for the first time.

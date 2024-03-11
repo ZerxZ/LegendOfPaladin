@@ -1,7 +1,8 @@
 using Godot;
-using System;
 using 勇者传说.classes;
 using Range = Godot.Range;
+
+namespace 勇者传说.ui;
 
 public partial class StatusPanel : HBoxContainer
 {
@@ -14,7 +15,7 @@ public partial class StatusPanel : HBoxContainer
     [Export] public Tween              HealthTween;
 
     // Called when the node enters the scene tree for the first time.
-    public override async void _Ready()
+    public override  void _Ready()
     {
         if (Stats is null)
         {

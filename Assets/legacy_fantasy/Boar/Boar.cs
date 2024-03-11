@@ -19,8 +19,8 @@ public partial class Boar : enemies.Enemy
 
     public override void _Ready()
     {
+        base._Ready();
         Hurtbox.HurtEntered += OnHurtEntered;
-        Direction = Direction;
     }
     private void OnHurtEntered(classes.Hitbox hitbox)
     {

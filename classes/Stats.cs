@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using Godot.Collections;
 
 namespace 勇者传说.classes;
 
 [GlobalClass]
-public partial class Stats : Node
+public partial class Stats : Node,IDataSave
 {
     [Signal] public delegate void HealthChangedEventHandler();
 
@@ -79,5 +80,20 @@ public partial class Stats : Node
         {
             EnergyChanged -= energyChangedEventHandler;
         }
+    }
+    public Dictionary ToDictionary()
+    {
+        var dict = new Dictionary();
+        dict.Add("health", Health);
+        dict.Add("max_energy", MaxEnergy);
+        dict.Add("max_health", MaxHealth);
+        
+        return dict;
+    }
+    public void FromDictionary(Dictionary dictionary)
+    {
+        MaxEnergy = dictionary.TryGetValue("max_energy", out var maxEnergy) ? (double)maxEnergy : MaxEnergy;
+        MaxHealth = dictionary.TryGetValue("max_health", out var maxHealth) ? (int)maxHealth : MaxHealth;
+        Health = dictionary.TryGetValue("health",        out var health) ? (int)health : MaxHealth;
     }
 }
