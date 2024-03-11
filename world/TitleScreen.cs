@@ -15,8 +15,8 @@ public partial class TitleScreen : Control
         NewGameButton.Pressed += OnNewGameButtonPressed;
         LoadGameButton.Pressed += OnLoadGameButtonPressed;
         ExitGameButton.Pressed += OnExitGameButtonPressed;
-
-
+        GD.Print($"[TitleScreen] HasSave: {Game.HasSave}");
+        LoadGameButton.Visible = Game.HasSave;
         foreach (var node in Menu.GetChildren())
         {
             if (node is not Button button)
@@ -39,8 +39,4 @@ public partial class TitleScreen : Control
         Game.Instance.NewGame();
     }
 
-    // Called every frame. 'delta' is the elapsed time since the previous frame.
-    public override void _Process(double delta)
-    {
-    }
 }

@@ -3,6 +3,7 @@ using Godot;
 using Godot.Collections;
 using 勇者传说.Assets.generic_char.player;
 using 勇者传说.classes;
+using FileAccess = Godot.FileAccess;
 
 namespace 勇者传说.globals;
 
@@ -21,7 +22,7 @@ public partial class Game : Node
         using var @input = @event;
         if (@input.IsActionPressed("ui_cancel"))
         {
-            SaveGame();
+            TitleMenu();
         }
         if (@input.IsActionPressed("ui_focus_next"))
         {
@@ -204,9 +205,15 @@ public partial class Game : Node
                 "init", Callable.From(() =>
                 {
                     WorldData = new Dictionary<string, Variant>();
-                    PlayerStats.FromDictionary(PlayerStats.ToDictionary());
+                    PlayerStats.FromDictionary(PlayerDefaultStatsData);
                 })
             }
         });
     }
+    public void TitleMenu()
+    {
+        ChangeScene("res://world/title_screen.tscn", new Dictionary<string, Variant>()
+        );
+    }
+    public static bool HasSave=>FileAccess.FileExists(SavePath);
 }

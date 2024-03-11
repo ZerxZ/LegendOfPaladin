@@ -1142,7 +1142,7 @@ layer_2/tile_data = PackedInt32Array()
 
 [node name="MineGate" parent="TileMap2" instance=ExtResource("3_fadgy")]
 position = Vector2(708, 204)
-ScenePath = "res://world.tscn"
+ScenePath = "res://world/world.tscn"
 Target = "TopEntry"
 
 [node name="MineGate2" parent="TileMap2" instance=ExtResource("3_fadgy")]
@@ -1164,7 +1164,8 @@ Direction = -1
 position = Vector2(130, -32)
 
 [node name="Player" parent="." instance=ExtResource("5_uu0p1")]
-position = Vector2(184, -32)
+position = Vector2(40, 208)
+Direction = 1
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(0, -15)
