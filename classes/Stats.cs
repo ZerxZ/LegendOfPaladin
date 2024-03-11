@@ -6,19 +6,19 @@ using Godot.Collections;
 namespace 勇者传说.classes;
 
 [GlobalClass]
-public partial class Stats : Node,IDataSave
+public partial class Stats : Node, IDataSave
 {
     [Signal] public delegate void HealthChangedEventHandler();
 
     [Signal] public delegate void EnergyChangedEventHandler();
 
-    [Export] public int    MaxHealth   = 3;
-    [Export] public double MaxEnergy   = 10;
-    [Export] public double EnergyRegen = 0.8;
-    private         int    _health;
-    private         double _energy;
-    public List<HealthChangedEventHandler> HealthChangedList = new List<HealthChangedEventHandler>();
-    public List<EnergyChangedEventHandler> EnergyChangedList = new List<EnergyChangedEventHandler>();
+    [Export] public int                             MaxHealth   = 3;
+    [Export] public double                          MaxEnergy   = 10;
+    [Export] public double                          EnergyRegen = 0.8;
+    private         int                             _health;
+    private         double                          _energy;
+    public          List<HealthChangedEventHandler> HealthChangedList = new List<HealthChangedEventHandler>();
+    public          List<EnergyChangedEventHandler> EnergyChangedList = new List<EnergyChangedEventHandler>();
     [Export] public int Health
     {
         get => _health;
@@ -58,7 +58,7 @@ public partial class Stats : Node,IDataSave
         {
             HealthChangedList.Add(handler);
         }
-       
+
         HealthChanged += handler;
     }
     public void RegisterEnergyChanged(EnergyChangedEventHandler handler)
@@ -81,16 +81,17 @@ public partial class Stats : Node,IDataSave
             EnergyChanged -= energyChangedEventHandler;
         }
     }
-    public Dictionary ToDictionary()
+    public Godot.Collections.Dictionary<string, Variant> ToDictionary()
     {
-        var dict = new Dictionary();
-        dict.Add("health", Health);
-        dict.Add("max_energy", MaxEnergy);
-        dict.Add("max_health", MaxHealth);
-        
-        return dict;
+
+        return new Godot.Collections.Dictionary<string, Variant>()
+        {
+            { "health", Health },
+            { "max_energy", MaxEnergy },
+            { "max_health", MaxHealth }
+        };
     }
-    public void FromDictionary(Dictionary dictionary)
+    public void FromDictionary(Godot.Collections.Dictionary<string, Variant> dictionary)
     {
         MaxEnergy = dictionary.TryGetValue("max_energy", out var maxEnergy) ? (double)maxEnergy : MaxEnergy;
         MaxHealth = dictionary.TryGetValue("max_health", out var maxHealth) ? (int)maxHealth : MaxHealth;

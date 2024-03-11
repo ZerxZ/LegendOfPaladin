@@ -15,7 +15,7 @@ public partial class Teleporter : Interactable
             GD.PrintErr("[Teleport] Scene is null!");
             return;
         }
-        globals.Game.Instance.ChangeScene(ScenePath, new Godot.Collections.Dictionary
+        globals.Game.Instance.ChangeScene(ScenePath, new Godot.Collections.Dictionary<string,Variant>
         {
             { "entry_point", Target }
         });

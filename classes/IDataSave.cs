@@ -1,9 +1,10 @@
-﻿using Godot.Collections;
+﻿using Godot;
+using Godot.Collections;
 
 namespace 勇者传说.classes;
 
 public interface IDataSave
 {
-    Dictionary ToDictionary();
-    void FromDictionary(Dictionary dictionary);
+    Dictionary<string,Variant> ToDictionary();
+    void FromDictionary(Dictionary<string,Variant> dictionary);
 }

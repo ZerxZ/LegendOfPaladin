@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
 using 勇者传说.Assets.generic_char.player;
@@ -34,10 +33,9 @@ public partial class World : Node2D,IDataSave
         Camera2D.ResetSmoothing();
         Camera2D.ForceUpdateScroll();
     }
-    public Dictionary ToDictionary()
+    public Dictionary<string,Variant> ToDictionary()
     {
         var enemiesAlive = new Array<string>();
-        var dict         = new Dictionary();
         foreach (var node in GetTree().GetNodesInGroup("enemies"))
         {
             if (node is Enemy enemy)
@@ -46,10 +44,12 @@ public partial class World : Node2D,IDataSave
                 enemiesAlive.Add(path.ToString());
             }
         }
-        dict.Add("enemies_alive", enemiesAlive);
-        return dict;
+        return new Dictionary<string,Variant>()
+        {
+            {"enemies_alive", enemiesAlive}
+        };
     }
-    public void FromDictionary(Dictionary dictionary)
+    public void FromDictionary(Dictionary<string,Variant> dictionary)
     {
 
         var enemiesAlive = dictionary.TryGetValue("enemies_alive", out var value) ? (Array<string>)value : new Array<string>();

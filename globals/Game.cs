@@ -8,13 +8,14 @@ namespace 勇者传说.globals;
 
 public partial class Game : Node
 {
-    public const    string                         SavePath  = "user://data.sav";
-    public          Dictionary<string, Dictionary> WorldData = new Dictionary<string, Dictionary>();
-    public static   Game                           Instance { get; private set; }
-    public static   string                         ScenePath;
-    public static   string                         EntryPoint;
-    [Export] public Stats                          PlayerStats;
-    [Export] public ColorRect                      Fade;
+    public const    string                      SavePath  = "user://data.sav";
+    public          Dictionary<string, Variant> WorldData = new Dictionary<string, Variant>();
+    public static   Game                        Instance { get; private set; }
+    public static   string                      ScenePath;
+    public static   string                      EntryPoint;
+    [Export] public Stats                       PlayerStats;
+    [Export] public ColorRect                   Fade;
+    public          Dictionary<string, Variant> PlayerDefaultStatsData;
     public override void _UnhandledInput(InputEvent @event)
     {
         using var @input = @event;
@@ -36,6 +37,7 @@ public partial class Game : Node
         };
         var tree = GetTree();
         tree.TreeChanged += OnTreeChanged;
+        PlayerDefaultStatsData = PlayerStats.ToDictionary();
     }
     private void OnTreeChanged()
     {
@@ -47,7 +49,7 @@ public partial class Game : Node
         player.StatusPanel.Stats = PlayerStats;
         player.StatusPanel._Ready();
     }
-    public async void ChangeScene(string scenePath, Dictionary param)
+    public async void ChangeScene(string scenePath, Dictionary<string, Variant> param)
     {
         PlayerStats.Clear();
         ScenePath = scenePath;
@@ -85,7 +87,7 @@ public partial class Game : Node
         {
             if (newSceneName != null && WorldData.TryGetValue(newSceneName, out var value))
             {
-                newWorld.FromDictionary(value);
+                newWorld.FromDictionary((Dictionary<string, Variant>)value);
 
             }
         }
@@ -127,17 +129,28 @@ public partial class Game : Node
         if (scene is null) return;
         var sceneName = Path.GetFileNameWithoutExtension(scene.SceneFilePath)!;
         WorldData[sceneName] = scene.ToDictionary();
-        using var data = new Dictionary();
-        data.Add("world_data",   WorldData);
-        data.Add("player_stats", PlayerStats.ToDictionary());
-        data.Add("scene_path",   scene.SceneFilePath);
-        var player   = new Dictionary();
-        var position = new Dictionary();
         var (x, y) = scene.Player.GlobalPosition;
-        position.Add("x", x);
-        position.Add("y", y);
-        player.Add("position",  position);
-        player.Add("direction", (int)scene.Player.Direction);
+        var player = new Dictionary<string, Variant>()
+        {
+            {
+                "position", new Dictionary<string, Variant>()
+                {
+                    { "x", x },
+                    { "y", y },
+                }
+            },
+            { "direction", (int)scene.Player.Direction }
+        };
+        var data = new Dictionary<string, Variant>()
+        {
+            { "world_data", WorldData },
+            { "player_stats", PlayerStats.ToDictionary() },
+            { "scene_path", scene.SceneFilePath },
+            { "player", player },
+        };
+
+        var position = new Dictionary<string, Variant>();
+
         data.Add("player", player);
         var       json = Json.Stringify(data);
         using var file = Godot.FileAccess.Open(SavePath, Godot.FileAccess.ModeFlags.Write);
@@ -159,31 +172,44 @@ public partial class Game : Node
         var json = file.GetAsText();
         GD.Print($"[Game Load] {json}");
         var data        = Json.ParseString(json).AsGodotDictionary();
-        var playerStats = data.TryGetValue("player_stats", out var stats) ? (Dictionary)stats : new Dictionary();
+        var playerStats = data.TryGetValue("player_stats", out var stats) ? (Dictionary<string, Variant>)stats : new Dictionary<string, Variant>();
         PlayerStats.FromDictionary(playerStats);
         var sceneName = data.TryGetValue("scene_path", out var scenePath) ? scenePath.AsString() : null;
         if (sceneName is null) return;
-        var player         = data.TryGetValue("player", out var playerData) ? (Dictionary)playerData : new Dictionary();
-        var position       = player.TryGetValue("position", out var pos) ? (Dictionary)pos : new Dictionary();
+        var player         = data.TryGetValue("player", out var playerData) ? (Dictionary<string, Variant>)playerData : new Dictionary<string, Variant>();
+        var position       = player.TryGetValue("position", out var pos) ? (Dictionary<string, Variant>)pos : new Dictionary<string, Variant>();
         var x              = position.TryGetValue("x", out var xValue) ? (float)xValue : 0;
         var y              = position.TryGetValue("y", out var yValue) ? (float)yValue : 0;
         var playerPosition = new Vector2(x, y);
         var direction      = player.TryGetValue("direction", out var dir) ? (int)dir : 0;
-        ChangeScene(sceneName, new Dictionary()
+        ChangeScene(sceneName, new Dictionary<string, Variant>()
         {
             { "direction", direction },
             { "position", playerPosition },
             {
                 "init", Callable.From(() =>
                 {
-                    WorldData = data.TryGetValue("world_data",     out var variant) ? (Dictionary<string, Dictionary>)variant : new Dictionary<string, Dictionary>();
-                    playerStats = data.TryGetValue("player_stats", out stats) ? (Dictionary)stats : new Dictionary();
+                    WorldData = data.TryGetValue("world_data",     out var variant) ? (Dictionary<string, Variant>)variant : new Dictionary<string, Variant>();
+                    playerStats = data.TryGetValue("player_stats", out stats) ? (Dictionary<string, Variant>)stats : new Dictionary<string, Variant>();
                     PlayerStats.FromDictionary(playerStats);
                 })
             }
         });
-        WorldData = data.TryGetValue("world_data", out var worldData) ? (Dictionary<string, Dictionary>)worldData : new Dictionary<string, Dictionary>();
+        WorldData = data.TryGetValue("world_data", out var worldData) ? (Dictionary<string, Variant>)worldData : new Dictionary<string, Variant>();
 
 
+    }
+    public void NewGame()
+    {
+        ChangeScene("res://world/world.tscn", new Dictionary<string, Variant>()
+        {
+            {
+                "init", Callable.From(() =>
+                {
+                    WorldData = new Dictionary<string, Variant>();
+                    PlayerStats.FromDictionary(PlayerStats.ToDictionary());
+                })
+            }
+        });
     }
 }
