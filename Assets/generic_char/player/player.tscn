@@ -2390,6 +2390,7 @@ position = Vector2(-1, -15)
 shape = SubResource("RectangleShape2D_m8wnn")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+deterministic = true
 libraries = {
 "": SubResource("AnimationLibrary_3ti7h")
 }
@@ -2416,6 +2417,7 @@ one_shot = true
 script = ExtResource("3_5onl5")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 20
 
 [node name="StatusPanel" parent="CanvasLayer" instance=ExtResource("8_l17g4")]
 offset_left = 8.0

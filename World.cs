@@ -32,6 +32,7 @@ public partial class World : Node2D,IDataSave
         Player.FallFromY = position.Y;
         Player.Direction = direction;
         Camera2D.ResetSmoothing();
+        Camera2D.ForceUpdateScroll();
     }
     public Dictionary ToDictionary()
     {

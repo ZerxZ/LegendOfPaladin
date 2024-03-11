@@ -127,7 +127,7 @@ public partial class Game : Node
         if (scene is null) return;
         var sceneName = Path.GetFileNameWithoutExtension(scene.SceneFilePath)!;
         WorldData[sceneName] = scene.ToDictionary();
-        var data = new Dictionary();
+        using var data = new Dictionary();
         data.Add("world_data",   WorldData);
         data.Add("player_stats", PlayerStats.ToDictionary());
         data.Add("scene_path",   scene.SceneFilePath);
@@ -139,24 +139,25 @@ public partial class Game : Node
         player.Add("position",  position);
         player.Add("direction", (int)scene.Player.Direction);
         data.Add("player", player);
-        var json = Json.Stringify(data);
-        var file = Godot.FileAccess.Open(SavePath, Godot.FileAccess.ModeFlags.Write);
+        var       json = Json.Stringify(data);
+        using var file = Godot.FileAccess.Open(SavePath, Godot.FileAccess.ModeFlags.Write);
         if (file is null)
         {
             return;
         }
         file.StoreString(json);
-        GD.Print("[Game] Saved!");
-        GD.Print($"[Game] {json}");
+        GD.Print("[Game Save] Saved!");
+        GD.Print($"[Game Save] {json}");
     }
     public void LoadGame()
     {
-        var file = Godot.FileAccess.Open(SavePath, Godot.FileAccess.ModeFlags.Read);
+        using var file = Godot.FileAccess.Open(SavePath, Godot.FileAccess.ModeFlags.Read);
         if (file is null)
         {
             return;
         }
-        var json        = file.GetAsText();
+        var json = file.GetAsText();
+        GD.Print($"[Game Load] {json}");
         var data        = Json.ParseString(json).AsGodotDictionary();
         var playerStats = data.TryGetValue("player_stats", out var stats) ? (Dictionary)stats : new Dictionary();
         PlayerStats.FromDictionary(playerStats);

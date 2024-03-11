@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://cntjedde7j8d2"]
+[gd_scene load_steps=12 format=3 uid="uid://cntjedde7j8d2"]
 
 [ext_resource type="Script" path="res://World.cs" id="1_0a5mu"]
 [ext_resource type="Texture2D" uid="uid://l6mko1sbclyn" path="res://Assets/legacy_fantasy/Trees/Tree-Assets.png" id="2_adrmk"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://bxk2e8hd1anip" path="res://Assets/legacy_fantasy/Background/Background.png" id="6_s1bcw"]
 [ext_resource type="Texture2D" uid="uid://dcqr2xulscgp8" path="res://Assets/legacy_fantasy/Trees/Background.png" id="7_17a4k"]
 [ext_resource type="PackedScene" uid="uid://j1le7e3qbgin" path="res://Assets/legacy_fantasy/Boar/boar.tscn" id="8_wppon"]
+[ext_resource type="PackedScene" uid="uid://bumg40io8e5gi" path="res://Assets/legacy_fantasy/Assets/save_stone.tscn" id="9_0ldb0"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_73nqr"]
 texture = ExtResource("2_adrmk")
@@ -1158,6 +1159,9 @@ Direction = -1
 position = Vector2(649, 208)
 script = ExtResource("4_wvmgn")
 Direction = -1
+
+[node name="SaveStone" parent="TileMap" instance=ExtResource("9_0ldb0")]
+position = Vector2(129, -32)
 
 [node name="Player" parent="." instance=ExtResource("5_uu0p1")]
 position = Vector2(184, -32)

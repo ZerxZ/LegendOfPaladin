@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Game="*res://globals/game.tscn"
+Vignette="*res://globals/vignette.tscn"
 
 [display]
 
