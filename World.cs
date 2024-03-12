@@ -6,12 +6,13 @@ using 勇者传说.enemies;
 using Direction = 勇者传说.Assets.generic_char.player.Direction;
 
 namespace 勇者传说;
-
+[GlobalClass]
 public partial class World : Node2D,IDataSave
 {
     [Export] public TileMap  TileMap;
     [Export] public Camera2D Camera2D;
     [Export] public Player   Player;
+    [Export] public AudioStream Bgm;
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -22,6 +23,10 @@ public partial class World : Node2D,IDataSave
         Camera2D.LimitBottom = used.End.Y * tileSize.Y;
         Camera2D.LimitLeft = used.Position.X * tileSize.X;
         Camera2D.ResetSmoothing();
+        if (Bgm is not null)
+        {
+            SoundManager.Instance.PlayBgm(Bgm);
+        }
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -1,8 +1,9 @@
-[gd_scene load_steps=20 format=3 uid="uid://dpjmv0wvhuap4"]
+[gd_scene load_steps=21 format=3 uid="uid://dpjmv0wvhuap4"]
 
 [ext_resource type="Theme" uid="uid://btqeu812n2uh7" path="res://ui/main_theme.tres" id="1_58m0g"]
 [ext_resource type="FontFile" uid="uid://duhuq2emi54v0" path="res://Assets/SmileySans-Oblique.otf" id="1_m5ghb"]
 [ext_resource type="Script" path="res://world/TitleScreen.cs" id="2_2x58a"]
+[ext_resource type="AudioStream" uid="uid://cwy3nid7b4u0" path="res://Assets/bgm/02 1 titles LOOP.mp3" id="3_kn0k7"]
 [ext_resource type="Texture2D" uid="uid://l6mko1sbclyn" path="res://Assets/legacy_fantasy/Trees/Tree-Assets.png" id="4_32b6v"]
 [ext_resource type="Texture2D" uid="uid://bxk2e8hd1anip" path="res://Assets/legacy_fantasy/Background/Background.png" id="5_bdoal"]
 [ext_resource type="Texture2D" uid="uid://dcqr2xulscgp8" path="res://Assets/legacy_fantasy/Trees/Background.png" id="6_nth0g"]
@@ -1222,6 +1223,7 @@ NewGameButton = NodePath("Menu/NewGame")
 LoadGameButton = NodePath("Menu/LoadGame")
 ExitGameButton = NodePath("Menu/ExitGame")
 Menu = NodePath("Menu")
+Bgm = ExtResource("3_kn0k7")
 
 [node name="Graphics" type="Node2D" parent="."]
 metadata/_edit_group_ = true
@@ -1382,10 +1384,10 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -120.0
-offset_top = -4.0
-offset_right = -48.0
-offset_bottom = 97.0
+offset_left = 264.0
+offset_top = 104.0
+offset_right = 336.0
+offset_bottom = 205.0
 grow_horizontal = 0
 grow_vertical = 2
 

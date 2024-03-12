@@ -11,6 +11,7 @@ public enum Direction
 
 public partial class Enemy : CharacterBody2D, IStateNode
 {
+    [Signal] public delegate void DiedEventHandler();
     public          float     Gravity      = ProjectSettings.GetSetting("physics/2d/default_gravity").AsSingle();
     [Export] public float     MaxSpeed     = 180.0f;
     [Export] public float     Acceleration = 2000.0f;
@@ -67,6 +68,7 @@ public partial class Enemy : CharacterBody2D, IStateNode
     }
     public void Die()
     {
+        EmitSignal(SignalName.Died);
         QueueFree();
     }
 }

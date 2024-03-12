@@ -2,17 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using 勇者传说.globals;
 
 namespace 勇者传说.Assets.generic_char.player;
+
 public enum Direction : int
 {
     Left  = -1,
     Right = 1,
 }
+
 public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
 {
- 
+
 
     public enum State : int
     {
@@ -71,6 +74,7 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
     [Export] public classes.Hitbox       Hitbox;
     [Export] public classes.Hurtbox      Hurtbox;
     [Export] public AnimatedSprite2D     InteractIcon;
+    [Export] public GameOverScreen       GameOverScreen;
     [Export] public ui.StatusPanel       StatusPanel;
     private         Direction            _direction = Direction.Left;
     [Export] public Direction Direction
@@ -81,7 +85,7 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
             _direction = value;
             if (!IsNodeReady())
             {
-                
+
                 return;
             }
             Graphics.Scale = Graphics.Scale with
@@ -101,11 +105,11 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
         if (Stats.Energy < SlidingEnergyCost) return false;
         return !FootChecker.IsColliding();
     }
-   
+
 
     public override void _Ready()
     {
-        Stand(_defaultGravity,0.01);
+        Stand(_defaultGravity, 0.01);
         Hurtbox.HurtEntered += OnHurtEntered;
         Direction = Direction;
     }
@@ -195,13 +199,14 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
             case State.Jump:
 
                 AnimationPlayer.Play("jump");
+
                 Velocity = Velocity with
                 {
                     Y = JumpSpeed
                 };
                 CoyoteTimer.Stop();
                 JumpRequestTimer.Stop();
-
+                SoundManager.Instance.PlaySfx("Jump");
                 break;
             case State.Fall:
                 AnimationPlayer.Play("fall");
@@ -228,15 +233,16 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
 
                 break;
             case State.Attack1:
-                AnimationPlayer.Play("attack_1");
-                IsComboRequested = false;
-                break;
             case State.Attack2:
-                AnimationPlayer.Play("attack_2");
-                IsComboRequested = false;
-                break;
             case State.Attack3:
-                AnimationPlayer.Play("attack_3");
+                AnimationPlayer.Play(to switch
+                {
+
+                    State.Attack1 => "attack_1",
+                    State.Attack2 => "attack_2",
+                    State.Attack3 => "attack_3",
+                });
+                SoundManager.Instance.PlaySfx("Attack");
                 IsComboRequested = false;
                 break;
             case State.Hurt:
@@ -522,7 +528,7 @@ public partial class Player : CharacterBody2D, 勇者传说.IStateNode
     }
     public void Die()
     {
-        GetTree().ReloadCurrentScene();
+        GameOverScreen.ShowGameOver();
     }
     public void Move(float gravity, double delta)
     {

@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://cntjedde7j8d2"]
+[gd_scene load_steps=13 format=3 uid="uid://cntjedde7j8d2"]
 
 [ext_resource type="Script" path="res://World.cs" id="1_0a5mu"]
 [ext_resource type="Texture2D" uid="uid://l6mko1sbclyn" path="res://Assets/legacy_fantasy/Trees/Tree-Assets.png" id="2_adrmk"]
+[ext_resource type="AudioStream" uid="uid://bbqjdoeaw25gd" path="res://Assets/bgm/21 11 forest LOOP.mp3" id="2_s17gg"]
 [ext_resource type="PackedScene" uid="uid://rwk01askw2t4" path="res://Assets/legacy_fantasy/Assets/mine_gate.tscn" id="3_fadgy"]
 [ext_resource type="Script" path="res://classes/EntryPoint.cs" id="4_wvmgn"]
 [ext_resource type="PackedScene" uid="uid://bcydvn4wpp7de" path="res://Assets/generic_char/player/player.tscn" id="5_uu0p1"]
@@ -1128,6 +1129,7 @@ script = ExtResource("1_0a5mu")
 TileMap = NodePath("TileMap2")
 Camera2D = NodePath("Player/Camera2D")
 Player = NodePath("Player")
+Bgm = ExtResource("2_s17gg")
 
 [node name="TileMap2" type="TileMap" parent="."]
 position = Vector2(-2, 0)

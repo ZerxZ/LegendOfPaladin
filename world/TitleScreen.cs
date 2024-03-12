@@ -8,6 +8,7 @@ public partial class TitleScreen : Control
     [Export] public Button        LoadGameButton;
     [Export] public Button        ExitGameButton;
     [Export] public VBoxContainer Menu;
+    [Export] public AudioStream  Bgm;
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
@@ -25,6 +26,8 @@ public partial class TitleScreen : Control
             }
             button.MouseEntered += button.GrabFocus;
         }
+        SoundManager.Instance.SetupUiSounds(this);
+        SoundManager.Instance.PlayBgm(Bgm);
     }
     private void OnExitGameButtonPressed()
     {

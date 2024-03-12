@@ -9,7 +9,9 @@ namespace 勇者传说.globals;
 
 public partial class Game : Node
 {
-    public const    string                      SavePath  = "user://data.sav";
+    public const string SavePath   = "user://data.sav";
+    public const string ConfigPath = "user://config.ini";
+
     public          Dictionary<string, Variant> WorldData = new Dictionary<string, Variant>();
     public static   Game                        Instance { get; private set; }
     public static   string                      ScenePath;
@@ -39,6 +41,7 @@ public partial class Game : Node
         var tree = GetTree();
         tree.TreeChanged += OnTreeChanged;
         PlayerDefaultStatsData = PlayerStats.ToDictionary();
+        LoadConfig();
     }
     private void OnTreeChanged()
     {
@@ -50,18 +53,18 @@ public partial class Game : Node
         player.StatusPanel.Stats = PlayerStats;
         player.StatusPanel._Ready();
     }
-    public async void ChangeScene(string scenePath, Dictionary<string, Variant> param)
+    public async void ChangeScene(string scenePath, Dictionary<string, Variant> param = default, float duration = 0.5f)
     {
         PlayerStats.Clear();
         ScenePath = scenePath;
-        EntryPoint = param.TryGetValue("entry_point", out var entryPoint) ? (string)entryPoint : null;
+        EntryPoint = param != null && param.TryGetValue("entry_point", out var entryPoint) ? (string)entryPoint : null;
         var tree         = GetTree();
         var oldSceneName = Path.GetFileNameWithoutExtension(tree.CurrentScene.SceneFilePath);
         if (tree.CurrentScene is World currentWorld)
         {
             if (oldSceneName != null) WorldData[oldSceneName] = currentWorld.ToDictionary();
         }
-        if (param.TryGetValue("init", out var init))
+        if (param != null && param.TryGetValue("init", out var init))
         {
             var initCallable = init.AsCallable();
             initCallable.Call();
@@ -69,7 +72,7 @@ public partial class Game : Node
         tree.Paused = true;
         var tween = CreateTween();
         tween.SetPauseMode(Tween.TweenPauseMode.Process);
-        tween.TweenProperty(Fade, "color:a", 1, 0.5f);
+        tween.TweenProperty(Fade, "color:a", 1, duration);
         await ToSignal(tween, Tween.SignalName.Finished);
         GD.Print($"[Teleport] {Name} => {scenePath}");
         var error = tree.ChangeSceneToFile(scenePath);
@@ -110,7 +113,7 @@ public partial class Game : Node
                 break;
             }
         }
-        if (param.TryGetValue("position", out var position))
+        if (param != null && param.TryGetValue("position", out var position))
         {
             var pos = position.AsVector2();
             if (tree.CurrentScene is World world)
@@ -120,7 +123,8 @@ public partial class Game : Node
         }
         tree.Paused = false;
         tween = CreateTween();
-        tween.TweenProperty(Fade, "color:a", 0, 0.5f);
+        tween.SetPauseMode(Tween.TweenPauseMode.Process);
+        tween.TweenProperty(Fade, "color:a", 0, duration);
         ScenePath = null;
         EntryPoint = null;
     }
@@ -208,12 +212,34 @@ public partial class Game : Node
                     PlayerStats.FromDictionary(PlayerDefaultStatsData);
                 })
             }
-        });
+        }, 1f);
     }
-    public void TitleMenu()
+    public void TitleMenu(float duration = 1f)
     {
         ChangeScene("res://world/title_screen.tscn", new Dictionary<string, Variant>()
-        );
+            ,                                        duration);
     }
-    public static bool HasSave=>FileAccess.FileExists(SavePath);
+    public static bool HasSave => FileAccess.FileExists(SavePath);
+    public void SaveConfig()
+    {
+        using var config       = new ConfigFile();
+        var       soundManager = SoundManager.Instance;
+        config.SetValue("audio", "master", soundManager.GetVolume(SoundManager.Bus.Master));
+        config.SetValue("audio", "sfx",    soundManager.GetVolume(SoundManager.Bus.Sfx));
+        config.SetValue("audio", "bgm",    soundManager.GetVolume(SoundManager.Bus.Bgm));
+        config.Save(ConfigPath);
+    }
+    public void LoadConfig()
+    {
+        using var config = new ConfigFile();
+        var       result = config.Load(ConfigPath);
+        if (result != Error.Ok)
+        {
+            return;
+        }
+        var soundManager = SoundManager.Instance;
+        soundManager.SetVolume(SoundManager.Bus.Master, config.GetValue("audio", "master", 0.5f).AsSingle());
+        soundManager.SetVolume(SoundManager.Bus.Sfx,    config.GetValue("audio", "sfx",    1f).AsSingle());
+        soundManager.SetVolume(SoundManager.Bus.Bgm,    config.GetValue("audio", "bgm",    1f).AsSingle());
+    }
 }

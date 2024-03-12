@@ -1,7 +1,8 @@
-[gd_scene load_steps=11 format=3 uid="uid://b8fyyqtyk61i6"]
+[gd_scene load_steps=12 format=3 uid="uid://b8fyyqtyk61i6"]
 
-[ext_resource type="Script" path="res://World.cs" id="1_sc0np"]
+[ext_resource type="Script" path="res://Cave.cs" id="1_4vdv2"]
 [ext_resource type="Texture2D" uid="uid://l6mko1sbclyn" path="res://Assets/legacy_fantasy/Trees/Tree-Assets.png" id="2_hf2q7"]
+[ext_resource type="AudioStream" uid="uid://bac4pjfe66xs2" path="res://Assets/bgm/27 14 BOSS fixing LOOP.mp3" id="2_w6eir"]
 [ext_resource type="PackedScene" uid="uid://rwk01askw2t4" path="res://Assets/legacy_fantasy/Assets/mine_gate.tscn" id="3_p23d8"]
 [ext_resource type="PackedScene" uid="uid://bcydvn4wpp7de" path="res://Assets/generic_char/player/player.tscn" id="5_agmxe"]
 [ext_resource type="Texture2D" uid="uid://bxk2e8hd1anip" path="res://Assets/legacy_fantasy/Background/Background.png" id="6_xt4b2"]
@@ -1122,11 +1123,13 @@ terrain_set_0/terrain_1/name = "Leaves"
 terrain_set_0/terrain_1/color = Color(0.5, 0.4375, 0.25, 1)
 sources/0 = SubResource("TileSetAtlasSource_73nqr")
 
-[node name="World" type="Node2D" node_paths=PackedStringArray("TileMap", "Camera2D", "Player")]
-script = ExtResource("1_sc0np")
+[node name="World" type="Node2D" node_paths=PackedStringArray("Boss", "TileMap", "Camera2D", "Player")]
+script = ExtResource("1_4vdv2")
+Boss = NodePath("Boar")
 TileMap = NodePath("TileMap")
 Camera2D = NodePath("Player/Camera2D")
 Player = NodePath("Player")
+Bgm = ExtResource("2_w6eir")
 
 [node name="TileMap" type="TileMap" parent="."]
 position = Vector2(-1, 0)

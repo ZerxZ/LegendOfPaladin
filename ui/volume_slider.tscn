@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://du3m3djpucplg"]
+
+[ext_resource type="Theme" uid="uid://btqeu812n2uh7" path="res://ui/main_theme.tres" id="1_v3eko"]
+[ext_resource type="Script" path="res://ui/VolumeSlider.cs" id="2_ye02p"]
+[ext_resource type="AudioStream" uid="uid://cwy3nid7b4u0" path="res://Assets/bgm/02 1 titles LOOP.mp3" id="3_le3p6"]
+
+[node name="VolumeSlider" type="HSlider"]
+offset_right = 144.0
+offset_bottom = 16.0
+theme = ExtResource("1_v3eko")
+max_value = 1.0
+step = 0.1
+value = 0.5
+script = ExtResource("2_ye02p")
+Bgm = ExtResource("3_le3p6")
